@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="<@?get site_language@>">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="<!@get post_description@>">
+		<meta name="author" content="<@?author name ?get post_author@>">
+		<title>
+			<@?get post_heading@> :: <@?get site_name@> - <@get site_description@>
+		</title>
+		<link href="css/bundle.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<@?include navigation@>
+		<!-- Page Header -->
+		<header class="masthead" style="background-image: url('<@?find_file ?get post_header_image@>'); background: <@?get post_header_color@>">
+			<div class="overlay"></div>
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-<@?get content_width@> mx-auto">
+						<div class="post-heading">
+							<h1><@?get post_heading@></h1>
+							<h2 class="subheading"><@?get post_subheading@></h2>
+							<span class="meta">Posted by
+								<a href="author/<@?get post_author@>"><@?author name ?get post_author@></a>
+								on <@?format_date ?get post_on_date?>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<!-- Post Content -->
+		<article>
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-<@?get content_width@> mx-auto">
+						<@?include_and_format_body ?post_slug@>
+					</div>
+				</div>
+			</div>
+		</article>
+		<hr>
+		<@?include footer@>
+	</body>
+</html>

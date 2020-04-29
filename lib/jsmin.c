@@ -32,7 +32,7 @@ is the option to read from a source file and output to the minified file.
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <fopenmkdir.c>
 static int the_a;
 static int the_b;
 static int look_ahead = EOF;
@@ -316,9 +316,11 @@ static void jsmin() {
 */
 
 int minify_js(const char* source_js_filename, const char* minified_js_filename) {
-		minified_js_file = fopen(minified_js_filename, "w");
+		minified_js_file = fopen_mkdir(minified_js_filename, "w");
 		source_js_file = fopen(source_js_filename, "r");
     jsmin();
+		fclose(minified_js_file);
+		fclose(source_js_file);
     return 0;
 }
 

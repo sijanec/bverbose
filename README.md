@@ -20,3 +20,24 @@ No. bVerbose sucks. You are allowed to use it, but please don't. It is made for 
 You should rather use jekyll or Publii.
 
 The aim of this is not to be better, it is worse than any other CMS.
+
+# folder structure:
+bVerbose
+├── assets (files for compiling the blog together)
+│   ├── content (user/writer-created content, bvr files and media)
+│   │   ├── authors (author's descriptions and bios)
+│   │   ├── global.bvr (file that is loaded on every page compilation)
+│   │   ├── media (images and videos, copied directly to dist)
+│   │   └── posts (pages and posts in bvr format for compiling in the blog)
+│   └── layout (theme, may be possible to create multiple themes and switch seamlessly)
+│       ├── css (css files that get bundled and minified)
+│       ├── fonts (fonts, directly copied to dist)
+│       ├── html (bvr files that make up the layout of the webpage)
+│       └── js (javascript files that get *bundled together and minified*(!))
+├── dist (output website, set as root folder of nginx)
+├── lib (libraries and other stuff I borrowed from other people)
+├── README.md (this file)
+├── src (source files in C, made by me)
+├── test (test scripts for individual functions in src and lib)
+└── tmp (temp folder of bVerbose, used whilst compiling bvr into HTML)
+
