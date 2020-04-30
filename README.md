@@ -22,6 +22,7 @@ You should rather use jekyll or Publii.
 The aim of this is not to be better, it is worse than any other CMS.
 
 # folder structure:
+```
 bVerbose
 ├── assets (files for compiling the blog together)
 │   ├── content (user/writer-created content, bvr files and media)
@@ -40,4 +41,5 @@ bVerbose
 ├── src (source files in C, made by me)
 ├── test (test scripts for individual functions in src and lib)
 └── tmp (temp folder of bVerbose, used whilst compiling bvr into HTML)
+```
 
