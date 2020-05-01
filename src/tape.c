@@ -64,14 +64,16 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * temp_output_fil
 			}
 			if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == CLOSING_COMMAND_TAG_CHAR_1 &&
 					copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == CLOSING_COMMAND_TAG_CHAR_2) { // end of arguments!
+				/// char argument_string[argument_length+1];
+				/// strncpy(argument_string, copy_buffer+(ftell(page_source_file)-(argument_length-1))% COPY_BUFFER_SIZE, argument_length);
+				copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] = '\0';
+				/// argument_string[argument_length-2] = '\0';
+				printf("end of command, command was %c, argument was %s\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
+				/// 	argument_string);
+					copy_buffer+(ftell(page_source_file)-(argument_length-1))% COPY_BUFFER_SIZE);
 				// switch (copy_buffer[(ftell(page_source_file)-(1+argument_length))]) { // switch command
 					// 
 				// }
-				char argument_string[argument_length+1];
-				strncpy(argument_string, copy_buffer+(ftell(page_source_file)-(argument_length-1)), argument_length);
-				argument_string[argument_length-2] = '\0';
-				printf("end of command, command was %c, argument was \"%s\"\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))], argument_string);
-				fprintf(temp_output_file, "command was %c, argument was \"%s\"\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))], argument_string);
 				return SUCCESS;
 			}
 		}

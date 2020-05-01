@@ -43,3 +43,12 @@ bVerbose
 └── tmp (temp folder of bVerbose, used whilst compiling bvr into HTML)
 ```
 
+# language syntax
+
+<@enter command string here@>
+
+commands are characters, such as `s` for `set`, `g` for `get` and `i` for `include`.
+
+commands are prefixed with `?` --- question marks.
+
+commands are followed by their arguments.
