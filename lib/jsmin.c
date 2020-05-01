@@ -29,7 +29,7 @@ This file was modified by Anton Šijanec in 2020 in order to allow it being
 used as a library for minifying JS inside other programs. All I've added
 is the option to read from a source file and output to the minified file.
 */
-
+#pragma once
 #include <stdlib.h>
 #include <stdio.h>
 #include <fopenmkdir.c>

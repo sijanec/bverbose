@@ -1,12 +1,9 @@
 // borrowed from https://gist.github.com/JonathonReinhart/8c0d90191c38af2dcadb102c4e202950
-
+#pragma once
 #include <string.h>
 #include <limits.h>     /* PATH_MAX */
 #include <sys/stat.h>   /* mkdir(2) */
 #include <errno.h>
-#ifndef PATH_MAX
-#define PATH_MAX 255
-#endif
 int mkdir_p(const char *path) {
     /* Adapted from http://stackoverflow.com/a/2336245/119527 */
     const size_t len = strlen(path);

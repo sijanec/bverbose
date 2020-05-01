@@ -1,20 +1,21 @@
+#pragma once
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <string.h>
 #include <mkdirp.c>
 #include <fopenmkdir.c>
-
+#include <limits.h>
 int bundle_js(char* bundle_filename, char* js_source_folder_name, char* file_extension) {
 	// char bundle_filename[64] = "../dist/js/bundle.js";
 	// char js_source_folder_name[64] = "../assets/js/";
 	// char file_extension[64] = ".js";
-	char source_filename[64];
+	char source_filename[NAME_MAX];
 	FILE * bundle_file;
 	FILE * source_file;
 	bundle_file = fopen_mkdir(bundle_filename, "w");
 	if(bundle_file == NULL) {
-		char bundle_folderpath[256];
+		char bundle_folderpath[PATH_MAX];
 		strcpy(bundle_folderpath, bundle_filename);
 		char *p = strchr(bundle_folderpath, '/');
 		if (!p) {
