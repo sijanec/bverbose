@@ -64,13 +64,13 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * temp_output_fil
 			}
 			if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == CLOSING_COMMAND_TAG_CHAR_1 &&
 					copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == CLOSING_COMMAND_TAG_CHAR_2) { // end of arguments!
-				/// char argument_string[argument_length+1];
-				/// strncpy(argument_string, copy_buffer+(ftell(page_source_file)-(argument_length-1))% COPY_BUFFER_SIZE, argument_length);
-				copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] = '\0';
-				/// argument_string[argument_length-2] = '\0';
-				printf("end of command, command was %c, argument was %s\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
-				/// 	argument_string);
-					copy_buffer+(ftell(page_source_file)-(argument_length-1))% COPY_BUFFER_SIZE);
+				char argument_string[argument_length+1];
+				for(int i=0; i<argument_length; i++) {
+					argument_string[i] = copy_buffer[0+(ftell(page_source_file)-(argument_length-(1+i)))% COPY_BUFFER_SIZE];
+				}
+				argument_string[argument_length-2] = '\0'; // -2, ker imamo še CLOSING_COMMAND_TAG_CHAR_1 in CLOSING_COMMAND_TAG_CHAR_2
+				printf("end of command, command was %c, argument was \"%s\"\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
+					argument_string);
 				// switch (copy_buffer[(ftell(page_source_file)-(1+argument_length))]) { // switch command
 					// 
 				// }
