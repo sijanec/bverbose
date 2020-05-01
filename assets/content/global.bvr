@@ -1,25 +1,25 @@
 # max 128 characters
-?set site_name=Anton Luka Šijanec
+<@?s site_name=Anton Luka Šijanec@>
 # max 2 characters
-?set site_language=sl
+<@?s site_language=sl@>
 # max 128 characters
-?set site_description=Moj osebni blog.
+<@?s site_description=Moj osebni blog.@>
 # max 32, max 64 characters per entry
-?set featured_links=posts/about,posts/contact,posts/sample-post
+<@?s featured_links=posts/about,posts/contact,posts/sample-post@>
 # max 64 characters or latest-posts
-?set index_page=pages/about
+<@?s index_page=pages/about@>
 # centered paragraph width. Can be 1, 2, 3, 4; 5 means text is left centered.
-?set content_width=8
+<@?s content_width=8@>
 # hour offset to format dates with. NOTE: 11 is subtracted to this value. GMT is then 11, Ljubljana is then 13
-?set timezone=13
+<@?s timezone=13@>
 # what folders to copy from layout to dist (such as fonts)
-?set copy_folders=fonts,media
+<@?s copy_folders=fonts,media@>
 # post-specific variables --- you should set them now. unset variables may cause problems.
-?set post_description=Unset description.
-?set post_author=anonymous
-?set post_header_image=transparent
-?set post_header_color=black
-?set post_heading=Unnamed post.
-?set post_subheading=Unset subheading.
-?set post_date=2020-04-29T15:05:10+00:00
-?set post_slug=posts/undefined
+<@?s post_description Unset description.@>
+<@?s post_author anonymous@>
+<@?s post_header_image transparent@>
+<@?s post_header_color black@>
+<@?s post_heading Unnamed post.@>
+<@?s post_subheading Unset subheading.@>
+<@?s post_date 2020-04-29T15:05:10+00:00@>
+<@?s post_slug posts/undefined@>

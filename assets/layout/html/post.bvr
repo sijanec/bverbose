@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-<html lang="<@?get site_language@>">
+<html lang="<@?g site_language@>">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta name="description" content="<!@get post_description@>">
-		<meta name="author" content="<@?author name ?get post_author@>">
+		<meta name="description" content="<!@g post_description@>">
+		<meta name="author" content="<@?g post_author_name@>">
 		<title>
-			<@?get post_heading@> :: <@?get site_name@> - <@get site_description@>
+			<@?g post_heading@> :: <@?g site_name@> - <@g site_description@>
 		</title>
 		<link href="css/bundle.min.css" rel="stylesheet">
 	</head>
 	<body>
-		<@?include navigation@>
+		<@?i navigation@>
 		<!-- Page Header -->
-		<header class="masthead" style="background-image: url('<@?find_file ?get post_header_image@>'); background: <@?get post_header_color@>">
+		<header class="masthead" style="background-image: url('<@?g post_header_image@>'); background: <@?g post_header_color@>">
 			<div class="overlay"></div>
 			<div class="container">
 				<div class="row">
-					<div class="col-lg-<@?get content_width@> mx-auto">
+					<div class="col-lg-<@?g content_width@> mx-auto">
 						<div class="post-heading">
-							<h1><@?get post_heading@></h1>
-							<h2 class="subheading"><@?get post_subheading@></h2>
+							<h1><@?g post_heading@></h1>
+							<h2 class="subheading"><@?g post_subheading@></h2>
 							<span class="meta">Posted by
-								<a href="author/<@?get post_author@>"><@?author name ?get post_author@></a>
-								on <@?format_date ?get post_on_date?>
+								<a href="author/<@?g post_author@>"><@?g post_author_name@></a>
+								on <@?g post_date?>
 							</span>
 						</div>
 					</div>
@@ -34,13 +34,13 @@
 		<article>
 			<div class="container">
 				<div class="row">
-					<div class="col-lg-<@?get content_width@> mx-auto">
-						<@?include_and_format_body ?post_slug@>
+					<div class="col-lg-<@?g content_width@> mx-auto">
+						<@?i ?post_slug@>
 					</div>
 				</div>
 			</div>
 		</article>
 		<hr>
-		<@?include footer@>
+		<@?i footer@>
 	</body>
 </html>
