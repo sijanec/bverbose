@@ -1,25 +1,36 @@
-# bverbose
+# bVerbose
 Simple software for compiling posts and pages into a fully featured blog or news site.
 
 # what?
-A CMS.
+A HTPCMS.
+
+# what ??
+A hypertext preprocessor content management system. You can call it BVR HTPCMS.
 
 # why?
-Because any CMS that you didn't make yourself is hard to configure. I wanted to make a blog with WordPress, and I realised that it's too much PHP code that I will never bother to go through. Then I tried jekyll; another story --- I don't know Ruby. Then I used Publii, soon discarded it as it did not work on Linux.
+Because any CMS that you didn't make yourself is hard to configure. I wanted to make a blog with WordPress, and I realised that it's too much PHP code
+that I will never bother to go through. Then I tried jekyll; another story --- I don't know Ruby. Then I used Publii, soon discarded it as it did not
+work on Linux.
 
 So here I am, making a readme of a CMS.
 
 # why? #2
-Because most top CMS software suites are simply bulky. They do not "compile" posts into HTML files; they render them on the fly, for every page requested. With PHP's performance on Drupal and WordPress, I got 300 miliseconds before the page even got sent to the browser. So all that great performance of nginx got lost because PHP was the great bottleneck. I don't want to say that PHP sucks, but it is just dumb to render a page to HTML _EVERY SINGLE TIME_, even though it didn't change.
+Because most top CMS software suites are simply bulky. They do not "compile" posts into HTML files; they render them on the fly, for every page requested.
+With PHP's performance on Drupal and WordPress, I got 300 miliseconds of waiting before the page even got sent to the browser. So all that great
+performance of nginx got lost because PHP was the great bottleneck. I don't want to say that PHP sucks, but it is just dumb to render a page to HTML
+_EVERY SINGLE TIME_, even though it didn't change.
 
 So bVerbose compiles the page into HTML files, allowing nginx to show it's potential.
 
 # should I use it?
-No. bVerbose sucks. You are allowed to use it, but please don't. It is made for me and it won't work on your machine. And besides, there are already way better CMS tools you can use.
+[//] # No. bVerbose sucks.
+You are allowed to use it.
+[//] # , but please don't. It is made for me and it won't work on your machine. And besides, there are already waybetter CMS tools you can use.
 
-You should rather use jekyll or Publii.
+[//] # You should rather use 
+Also check out jekyll or Publii.
 
-The aim of this is not to be better, it is worse than any other CMS.
+[//]: # The aim of this is not to be better, it is worse than any other CMS.
 
 # folder structure:
 ```
@@ -47,8 +58,44 @@ bVerbose
 
 <@enter command string here@>
 
-commands are characters, such as `s` for `set`, `g` for `get` and `i` for `include`.
+commands are characters, such as `s` for `set`, `g` for `get` and `i` for `include` and `m` to `move`.
 
 commands are prefixed with `?` --- question marks.
 
 commands are followed by their arguments.
+
+pound signs (#) as the first characters in a line represent comments. That line will be replaced with a blank line, two blank lines, or completely removed,
+depending on the mood of the Off-By-One Error Gods.
+
+including a pound sign between the opening command tag (<@) and the first question mark-prefixed command will cause that command block to surpress output.
+
+this is useful particulary for inclusion of file to obtain variables from it in the beginning of the layout template theme to display for example author
+and title before reading the body. This would require two file reads, but that doesn't really matter, as everyone has SSDs nowadays.
+
+To undefine a variable, use the move command and rename it to BVR_UNDEFINED. The program treats BVR_UNDEFINED variables as garbage/undefined and free to
+use. Note that after the movement, the old variable and it's value will be hard to reach again and possibly lost. One may be able to assign a new variable
+and chances are, it will have the value of the deleted variable. Variables contain garbage values when the program gets freshly started, and then a garbage
+values from previous variable values, after moves are made. If a variable is not defined/found when you call get, it will return BVR_UNDEFINED.
+
+The BVR_UNDEFINED string is a C preprocessor definition/directive, and can be adjusted at program compile time to a different value.
+# limitations
+
+most of the control characters, such as command block opening and closing tags, comment characters, and command characters, cna be edited easily in the
+bvr.h file. They are preprocessor definitions. Variables are fixed size and can be changed the same way. By default, you have 128 variables, each maximum
+127 bytes in length (Size is 128 bytes including the null character).
+
+Variable values are not quoted any can't contain control characters, but can contain spaces, depending on the command. Variable names should not contain
+spaces nor control characters.
+
+There are only strings in variables, no other datatypes, no arithmetic. I plan to add if-statements and loops. This is a HTML preprocessor, do not make it into a Turing machine, unless
+you really want to.
+
+# compilation and instalation (not yet working)
+
+`gcc src/main.c -I lib -I src`
+
+test script:
+
+`gcc test/tape-test.c -I lib -I src`
+
+
