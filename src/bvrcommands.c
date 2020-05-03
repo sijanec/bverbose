@@ -73,13 +73,12 @@ int bvr_handle_move(FILE * input, FILE * output) {
 	item[++i] = '\0';
 	i = 0;
 	input_char = bvr_var_skip_separator_chars(input);
-	value[i] = input_char;
 	while(input_char != ' ' && input_char != CLOSING_COMMAND_TAG_CHAR_1 && input_char != ',' && input_char != ';' && input_char != EOF &&
 			input_char != '\0' && input_char != '\n' && i < BVR_MAX_VARIABLE_SIZE) {
-		value[++i] = input_char;
+		value[i++] = input_char;
 		input_char = fgetc(input);
 	}
-	value[++i] = '\0';
+	value[i++] = '\0';
 	return bvr_var_mv(item, value);
 	fflush(output);
 	return SUCCESS;
