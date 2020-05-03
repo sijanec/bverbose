@@ -92,38 +92,29 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * output_file, ch
 	copy_buffer[(ftell(page_source_file)% COPY_BUFFER_SIZE)] = fgetc(page_source_file); // remove closing command tag character
 	return what_to_return;
 }
-
-int bvr_compose_page(char page_source_file_path[], int this_is_a_top_level_page, char * temp_output_path) {
-	if(temp_output_path != NULL) {
-		char * temp_output_filename = randstring(16);
-		char temp_output_path[80] = "tmp/";
-		strcat(temp_output_path, temp_output_filename);
-	}
+int bvr_compose_stream(FILE * page_source_file, FILE * temp_output_file) {
 	char copy_buffer[COPY_BUFFER_SIZE];
-	FILE * temp_output_file = fopen_mkdir(temp_output_path, "w");
-	FILE * page_source_file = fopen(page_source_file_path, "r");
-
-	for(int i = 0; i < sizeof(copy_buffer); i++) { // da garbage vrednosti ne bodo slučajno ukazi! --- useless!, todo: delete
-		copy_buffer[i] = ' ';
+	for(int i = 0; i < sizeof(copy_buffer); i++) { // da garbage vrednosti ne bodo slučajno ukazi!
+		copy_buffer[i] = '\n';
 	}
- 	copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file);
-	if(copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == EOF) {
-		goto done_reading_write_file;
-	}
+ 	// copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file);
+	// if(copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == EOF) {
+	// 	goto done_reading_write_file;
+	// }
   while (1) {
   	copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file);
 		if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == OPENING_COMMAND_TAG_CHAR_1 &&
 				copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == OPENING_COMMAND_TAG_CHAR_2) {
 		 	if(bvr_inline_command_processor(page_source_file, temp_output_file, copy_buffer) == FAILURE) {
-		 		fprintf(temp_output_file, "\nbvr_inline_command_processor returned an error status whilst composing %s\n", page_source_file_path);
-				fprintf(stderr, "[tape.c] bvr_inline_command_processor returned an error status whilst composing %s\n", page_source_file_path);
+		 		fprintf(temp_output_file, "\nbvr_inline_command_processor returned an error status.\n");
+				fprintf(stderr, "[tape.c] bvr_inline_command_processor returned an error status.\n");
 		 	}
 		  copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // remove last > that just wants to be there... OB1
 			continue;
 		}
 		if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == '\n' && copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == LINE_COMMENT_CHAR) {
-			copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // idk, OB1 is a bitch
-			while(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] != '\n') { // idk, OB1 is a bitch
+			// copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // idk, OB1 is a bitch
+			while(copy_buffer[(ftell(page_source_file)-0)% COPY_BUFFER_SIZE] != '\n') { // idk, OB1 is a bitch
  				copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // idk, OB1 is a bitch
 			}
 			continue;
@@ -141,6 +132,21 @@ int bvr_compose_page(char page_source_file_path[], int this_is_a_top_level_page,
 		}
 		fputc(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE], temp_output_file);
   }
+	return SUCCESS;
+}
+
+int bvr_compose_page(char page_source_file_path[], int this_is_a_top_level_page, char * temp_output_path) {
+	if(temp_output_path != NULL) {
+		char * temp_output_filename = randstring(16);
+		char temp_output_path[80] = "tmp/";
+		strcat(temp_output_path, temp_output_filename);
+	}
+	FILE * temp_output_file = fopen_mkdir(temp_output_path, "w");
+	FILE * page_source_file = fopen(page_source_file_path, "r");
+	if(bvr_compose_stream(page_source_file, temp_output_file) != SUCCESS) {
+		fprintf(stderr, "[tape.c] bvr_compose_page: bvr_compose_stream returned a non-successful response whilst composing %s. Nevertheless, we are continuing.\n",
+			page_source_file_path);
+	}
 
 
 	done_reading_write_file:
