@@ -7,6 +7,8 @@
 <@?s ab 12@>
 <@?g ab@>
 <@?g ab@>
+<@?s temp Ime mi je Anton Luka@>
+<@?g temp@>
 # to je komentar in se ne rendera
 <@?1 post_author@>
 <@?2 image_caption This is an example image.@>
