@@ -1,7 +1,18 @@
-<@?s post_author anton@>
+<@?s abc 1232@>
+<@?g abc@>
+<@?g abc@>
+<@?s abc 123@>
+<@?g abc@>
+<@?g abc@>
+<@?s ab 12@>
+<@?g ab@>
+<@?g ab@>
 # to je komentar in se ne rendera
-<@?i h1@>
-<@?s image_caption This is an example image.@>
-<@?s example.jpg@>
-<@?i image@>
+<@?1 post_author@>
+<@?2 image_caption This is an example image.@>
+<@?3 sexample.jpg@>
+<@#?4 image@>
+<@?5 image@>
+<@?6 image@>
+<@?7 image@>
 in tako so srečno živeli do konca svojih dni!

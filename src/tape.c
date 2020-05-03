@@ -1,5 +1,5 @@
 #pragma once
-
+#include <bvr.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
@@ -8,49 +8,28 @@
 #include <fopenmkdir.c>
 #include <limits.h>
 #include <randstring.c>
-#include <strlcpy.c>
-#define BVR_MAX_VARIABLE_SIZE 128
-#define BVR_INITIAL_VARIABLES_COUNT 128
-#define SUCCESS 0
-#define FAILURE -1
-#define COPY_BUFFER_SIZE 128
-#define OPENING_COMMAND_TAG_LENGTH 2
-#define OPENING_COMMAND_TAG_CHAR_1 '<'
-#define OPENING_COMMAND_TAG_CHAR_2 '@'
-#define CLOSING_COMMAND_TAG_CHAR_1 '@'
-#define CLOSING_COMMAND_TAG_CHAR_2 '>'
-#define LINE_COMMENT_CHAR '#'
-#define LINE_COMMAND_CHAR '?'
-#define WAITING_FOR_COMMAND 8922
-#define READING_COMMAND 2343
-#define PROCESSING_COMMAND 346
-char bvr_variables[BVR_INITIAL_VARIABLES_COUNT][BVR_MAX_VARIABLE_SIZE];
-// char* bvr_variables[128] = malloc(BVR_INITIAL_VARIABLES_COUNT * BVR_MAX_VARIABLE_SIZE);
-// int bvr_variables_multiplier = 1;
+#include <bvrcommands.c>
+#include <bvrvar.c>
 
-// int bvr_increase_variables() { // this can be costly https://stackoverflow.com/a/3827922
-// 	char* more_variables = realloc(bvr_variables, ++bvr_variables_multiplier * BVR_INITIAL_VARIABLES_COUNT * sizeof(BVR_MAX_VARIABLE_SIZE));
-// 	if (!more_variables) {
-// 		printf("[tape.c] bvr_increase_variables: unable to increase variables count. Program will continue, but may run out of variable space and fail\n");
-// 		bvr_variables_multiplier = bvr_variables_multiplier - 1;
-// 		return FAILURE;
-// 	}
-// 	return SUCCESS;
-// }
-
-int bvr_inline_command_processor(FILE * page_source_file, FILE * temp_output_file, char copy_buffer[]) {
+int bvr_inline_command_processor(FILE * page_source_file, FILE * output_file, char copy_buffer[]) {
+	FILE * temp_output_file = output_file;
 	int what_to_return = SUCCESS;
 	for(int i = 1; i <= OPENING_COMMAND_TAG_LENGTH; i++) {
 		copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // remove opening command tag characters
 	}
 	int command_processor_status = WAITING_FOR_COMMAND;
 	int argument_length = 0;
+	char command_entered;
 	while(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] != CLOSING_COMMAND_TAG_CHAR_1 ||
 			copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] != CLOSING_COMMAND_TAG_CHAR_2 ||
 			command_processor_status == PROCESSING_COMMAND) {
-		copy_buffer[(ftell(page_source_file))% COPY_BUFFER_SIZE] = fgetc(page_source_file); // advance file pointer to the end of command without rewriting.
-		// printf("received command char %c\n", copy_buffer[(ftell(page_source_file)-2)% COPY_BUFFER_SIZE]);
-		if(copy_buffer[(ftell(page_source_file)-2)% COPY_BUFFER_SIZE] == '?' && command_processor_status == WAITING_FOR_COMMAND) {
+		copy_buffer[(ftell(page_source_file))% COPY_BUFFER_SIZE] = fgetc(page_source_file);
+		if(copy_buffer[(ftell(page_source_file)-2)% COPY_BUFFER_SIZE] == LINE_COMMENT_CHAR && command_processor_status == WAITING_FOR_COMMAND) {
+			temp_output_file = fopen(THE_VOID, "w");
+			continue;
+		}
+		if(copy_buffer[(ftell(page_source_file)-2)% COPY_BUFFER_SIZE] == LINE_COMMAND_CHAR && command_processor_status == WAITING_FOR_COMMAND) {
+			command_entered = copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE];
 			command_processor_status = READING_COMMAND;
 			continue;
 		}
@@ -69,11 +48,37 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * temp_output_fil
 					argument_string[i] = copy_buffer[0+(ftell(page_source_file)-(argument_length-(1+i)))% COPY_BUFFER_SIZE];
 				}
 				argument_string[argument_length-2] = '\0'; // -2, ker imamo še CLOSING_COMMAND_TAG_CHAR_1 in CLOSING_COMMAND_TAG_CHAR_2
-				printf("end of command, command was %c, argument was \"%s\"\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
-					argument_string);
-				// switch (copy_buffer[(ftell(page_source_file)-(1+argument_length))]) { // switch command
-					// 
-				// }
+				int command_handler_output = SUCCESS;
+				FILE * argument_feed;
+				argument_feed = fmemopen (argument_string, strlen (argument_string), "r");
+				switch (command_entered) { // switch command
+					case 'g':
+						command_handler_output = bvr_handle_get(argument_feed, temp_output_file);
+						break;
+					case 's':
+						command_handler_output = bvr_handle_set(argument_feed, temp_output_file);
+						break;
+					case 'i':
+						command_handler_output = bvr_handle_include(argument_feed, temp_output_file);
+						break;
+					case 'm':
+						command_handler_output = bvr_handle_move(argument_feed, temp_output_file);
+						break;
+					case 'b':
+						// fprintf(stderr, "bunden %c\n", command_entered);
+						command_handler_output = bvr_handle_info(argument_feed, temp_output_file);
+						break;
+					default:
+						fprintf(stderr, "[tape.c] bvr_inline_command_processor: unknown command %c\n", command_entered);
+						fprintf(temp_output_file, "\nbVerbose unknown command %c\n", command_entered);
+				}
+				if(command_handler_output != SUCCESS) {
+					fprintf(stderr, "[tape.c] bvr_inline_command_processor: command handler for %c with argument \"%s\" returned an error code.\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
+						argument_string);
+					fprintf(temp_output_file,  "command handler for %c with argument \"%s\" returned an error code.\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
+						argument_string);
+					return FAILURE;
+				}
 				return SUCCESS;
 			}
 		}
@@ -84,7 +89,7 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * temp_output_fil
 			return FAILURE;
 		}
 	}
-	copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // remove closing command tag character
+	copy_buffer[(ftell(page_source_file)% COPY_BUFFER_SIZE)] = fgetc(page_source_file); // remove closing command tag character
 	return what_to_return;
 }
 
@@ -98,7 +103,7 @@ int bvr_compose_page(char page_source_file_path[], int this_is_a_top_level_page,
 	FILE * temp_output_file = fopen_mkdir(temp_output_path, "w");
 	FILE * page_source_file = fopen(page_source_file_path, "r");
 
-	for(int i = 0; i < sizeof(copy_buffer); i++) { // da garbage vrednosti ne bodo slučajno ukazi!
+	for(int i = 0; i < sizeof(copy_buffer); i++) { // da garbage vrednosti ne bodo slučajno ukazi! --- useless!, todo: delete
 		copy_buffer[i] = ' ';
 	}
  	copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file);
@@ -107,11 +112,13 @@ int bvr_compose_page(char page_source_file_path[], int this_is_a_top_level_page,
 	}
   while (1) {
   	copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file);
-		if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == OPENING_COMMAND_TAG_CHAR_1 && copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == OPENING_COMMAND_TAG_CHAR_2) {
+		if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == OPENING_COMMAND_TAG_CHAR_1 &&
+				copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == OPENING_COMMAND_TAG_CHAR_2) {
 		 	if(bvr_inline_command_processor(page_source_file, temp_output_file, copy_buffer) == FAILURE) {
 		 		fprintf(temp_output_file, "\nbvr_inline_command_processor returned an error status whilst composing %s\n", page_source_file_path);
 				fprintf(stderr, "[tape.c] bvr_inline_command_processor returned an error status whilst composing %s\n", page_source_file_path);
 		 	}
+		  copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // remove last > that just wants to be there... OB1
 			continue;
 		}
 		if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == '\n' && copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == LINE_COMMENT_CHAR) {
