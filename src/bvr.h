@@ -23,7 +23,7 @@ char bvr_variables[BVR_INITIAL_VARIABLES_COUNT*2][BVR_MAX_VARIABLE_SIZE];
 int bvr_bvrvar_first_time_set = 1;
 
 #define BVR_VER_MAJOR 0
-#define BVR_VER_MINOR 0
+#define BVR_VER_MINOR 1
 #define BVR_VER_PATCH 0
 
 #define BVR_PATH_SEPARATOR ';'
