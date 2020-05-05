@@ -14,7 +14,9 @@
 <@?s timezone=13@>
 # what folders to copy from layout to dist (such as fonts)
 <@?s copy_folders=fonts,media@>
-# post-specific variables --- you should set them now. unset variables may cause problems.
+# path, where bvr files will be searched for
+<@?s bvr_include_path assets/content/;assets/content/posts/;assets/layout/;assets/content/html/@>
+# post-specific variables --- you should set them now. unset variables may cause problems --- they return BVR_UNDEFINED
 <@?s post_description Unset description.@>
 <@?s post_author anonymous@>
 <@?s post_header_image transparent@>

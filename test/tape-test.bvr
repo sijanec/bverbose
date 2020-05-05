@@ -1,3 +1,5 @@
+<@?i test/tape-test-to-include.bvr @>
+<@?g included_variable @> 
 <@?s abc 1232@>
 <@?g abc@>
 <@?m abc bbc@>

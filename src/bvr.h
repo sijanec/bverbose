@@ -25,3 +25,8 @@ int bvr_bvrvar_first_time_set = 1;
 #define BVR_VER_MAJOR 0
 #define BVR_VER_MINOR 0
 #define BVR_VER_PATCH 0
+
+#define BVR_PATH_SEPARATOR ';'
+#define BVR_INCLUDE_PATH_VAR_NAME "bvr_include_path"
+
+int bvr_compose_stream(FILE *, FILE *);

@@ -1,5 +1,6 @@
 #pragma once
 #include <bvr.h>
+#include <tape.c>
 #include <bvrvar.c>
 char bvr_var_skip_separator_chars(FILE * input) {
 	char input_char = fgetc(input);
@@ -52,13 +53,36 @@ int bvr_handle_include(FILE * input, FILE * output) {
 	int i = 0;
 	while(input_char != ' ' && input_char != CLOSING_COMMAND_TAG_CHAR_1 && input_char != ',' && input_char != ';' && input_char != EOF &&
 			input_char != '\0' && input_char != '\n' && i < BVR_MAX_VARIABLE_SIZE) {
-		item[++i] = input_char;
+		item[i++] = input_char;
 		input_char = fgetc(input);
 	}
-	item[++i] = '\0';
-	fprintf(output, "%s", bvr_var_get(item));
+	item[i++] = '\0';
+	FILE * stream = fopen(item, "r");
+	char notgoodatnamingvariables[PATH_MAX];
+	char * path = bvr_var_get(BVR_INCLUDE_PATH_VAR_NAME);
+	if(strcmp(path, BVR_UNDEFINED) == 0 && stream == NULL) {
+		fprintf(output, "\nbVerbose include error. File %s not found. Path is undefined.\n", item);
+		fprintf(stderr, "[bvrcommands.c] bvr_handle_include: File %s not found. Path is undefined.\n", item);
+		return FAILURE;
+	}
+	char * singlepath;
+	while(stream == NULL) {
+		singlepath = strrchr(path, BVR_PATH_SEPARATOR);
+		strcpy(notgoodatnamingvariables, singlepath);
+		strcat(notgoodatnamingvariables, item);
+		stream = fopen(notgoodatnamingvariables, "r");
+		if(strrchr(path, BVR_PATH_SEPARATOR) == NULL) {
+			stream = fopen(notgoodatnamingvariables, "r");
+			if(stream == NULL) {
+				fprintf(output, "\nbVerbose include error. File %s not found.\n", item);
+				fprintf(stderr, "[bvrcommands.c] bvr_handle_include: File %s not found.\n", item);
+				return FAILURE;
+			}
+		}
+		*singlepath = '\0';
+	}
+	return bvr_compose_stream(stream, output);
 	fflush(output);
-	return SUCCESS;
 }
 int bvr_handle_move(FILE * input, FILE * output) {
 	char item[BVR_MAX_VARIABLE_SIZE+1];

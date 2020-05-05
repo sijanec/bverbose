@@ -10,7 +10,6 @@
 #include <randstring.c>
 #include <bvrcommands.c>
 #include <bvrvar.c>
-
 int bvr_inline_command_processor(FILE * page_source_file, FILE * output_file, char copy_buffer[]) {
 	FILE * temp_output_file = output_file;
 	int what_to_return = SUCCESS;
@@ -92,6 +91,7 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * output_file, ch
 	copy_buffer[(ftell(page_source_file)% COPY_BUFFER_SIZE)] = fgetc(page_source_file); // remove closing command tag character
 	return what_to_return;
 }
+
 int bvr_compose_stream(FILE * page_source_file, FILE * temp_output_file) {
 	char copy_buffer[COPY_BUFFER_SIZE];
 	for(int i = 0; i < sizeof(copy_buffer); i++) { // da garbage vrednosti ne bodo slučajno ukazi!
