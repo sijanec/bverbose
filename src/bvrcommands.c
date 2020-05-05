@@ -74,11 +74,20 @@ int bvr_handle_include(FILE * input, FILE * output) {
 	while(stream == NULL) {
 		singlepath = strrchr(path, BVR_PATH_SEPARATOR);
 		if(singlepath == NULL) {
-			stream = fopen(path, "r"); // ob1 fuckery
+			strcpy(notgoodatnamingvariables, path);
+			strcat(notgoodatnamingvariables, item);
+			stream = fopen(notgoodatnamingvariables, "r"); // ob1 fuckery
 			if(stream == NULL) {
-				fprintf(output, "\nbVerbose include error. File %s not found.\n", item);
-				fprintf(stderr, "[bvrcommands.c] bvr_handle_include: File %s not found.\n", item);
-				return FAILURE;
+				strcpy(notgoodatnamingvariables, path);
+				strcat(notgoodatnamingvariables, item);
+				strcat(notgoodatnamingvariables, BVR_COMMAND_FILE_EXT);
+				stream = fopen(notgoodatnamingvariables, "r"); // ob1 fuckery
+				if(stream == NULL) {
+					fprintf(output, "\nbVerbose include error. File %s not found.\n", item);
+					fprintf(stderr, "[bvrcommands.c] bvr_handle_include: File %s not found.\n", item);
+					return FAILURE;
+				}
+				break;
 			}
 			break;
 		}
