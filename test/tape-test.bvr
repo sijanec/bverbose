@@ -1,11 +1,15 @@
-<@?i test/tape-test-to-include.bvr @>
-<@?g included_variable @> 
-<@?s abc 1232@>
-<@?g abc@>
-<@?m abc bbc@>
-<@?g abc@>
-<@?g bbc@>
-hello?
+<@?i assets/content/global.bvr @>
+<@?i krneki@>
+# <@?g post_slug @>
+# <@?g bvr_include_path @>
+# <@?i tape-test-to-includes @>
+# <@?g included_variable @> 
+# <@?s abc 1232@>
+# <@?g abc@>
+# <@?m abc bbc@>
+# <@?g abc@>
+# <@?g bbc@>
+# hello?
 # <@?g abc@>
 # <@?s abc 123@>
 # <@?g abc@>
@@ -23,4 +27,4 @@ hello?
 # <@?5 image@>
 # <@?6 image@>
 # <@?7 image@>
-in tako so srečno živeli do konca svojih dni!
+# in tako so srečno živeli do konca svojih dni!

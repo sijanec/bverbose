@@ -60,24 +60,34 @@ int bvr_handle_include(FILE * input, FILE * output) {
 	FILE * stream = fopen(item, "r");
 	char notgoodatnamingvariables[PATH_MAX];
 	char * path = bvr_var_get(BVR_INCLUDE_PATH_VAR_NAME);
-	if(strcmp(path, BVR_UNDEFINED) == 0 && stream == NULL) {
-		fprintf(output, "\nbVerbose include error. File %s not found. Path is undefined.\n", item);
-		fprintf(stderr, "[bvrcommands.c] bvr_handle_include: File %s not found. Path is undefined.\n", item);
-		return FAILURE;
+	if(stream == NULL) {
+		strcpy(notgoodatnamingvariables, item);
+		strcat(notgoodatnamingvariables, BVR_COMMAND_FILE_EXT);
+		stream = fopen(notgoodatnamingvariables, "r");
+		if(strcmp(path, BVR_UNDEFINED) == 0 && stream == NULL) {
+			fprintf(output, "\nbVerbose include error. File %s not found. Path is undefined.\n", item);
+			fprintf(stderr, "[bvrcommands.c] bvr_handle_include: File %s not found. Path is undefined.\n", item);
+			return FAILURE;
+		}
 	}
 	char * singlepath;
 	while(stream == NULL) {
 		singlepath = strrchr(path, BVR_PATH_SEPARATOR);
-		strcpy(notgoodatnamingvariables, singlepath);
-		strcat(notgoodatnamingvariables, item);
-		stream = fopen(notgoodatnamingvariables, "r");
-		if(strrchr(path, BVR_PATH_SEPARATOR) == NULL) {
-			stream = fopen(notgoodatnamingvariables, "r");
+		if(singlepath == NULL) {
+			stream = fopen(path, "r"); // ob1 fuckery
 			if(stream == NULL) {
 				fprintf(output, "\nbVerbose include error. File %s not found.\n", item);
 				fprintf(stderr, "[bvrcommands.c] bvr_handle_include: File %s not found.\n", item);
 				return FAILURE;
 			}
+			break;
+		}
+		strcpy(notgoodatnamingvariables, singlepath);
+		strcat(notgoodatnamingvariables, item);
+		stream = fopen(notgoodatnamingvariables+1, "r"); // ob1 fuckery
+		if(stream == NULL) {
+			strcat(notgoodatnamingvariables, BVR_COMMAND_FILE_EXT);
+			stream = fopen(notgoodatnamingvariables+1, "r"); // ob1 fuckery
 		}
 		*singlepath = '\0';
 	}
