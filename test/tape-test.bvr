@@ -1,6 +1,10 @@
+# <@?s 123 123@>
+# <@?g 123@>
+# <@?b@>
+# test navadne datoteke brez ukazov
 <@?i assets/content/global.bvr @>
-<@?i krneski @>
-# <@?g post_slug @>
+# <@?i krneski @>
+<@?g post_slug @>
 # <@?g bvr_include_path @>
 # <@?i tape-test-to-includes @>
 # <@?g included_variable @> 

@@ -10,85 +10,74 @@
 #include <randstring.c>
 #include <bvrcommands.c>
 #include <bvrvar.c>
+int bvr_command_processor(FILE * page_source_file, FILE * temp_output_file) {
+	char copy_buffer[COPY_BUFFER_SIZE];
+	copy_buffer[(ftell(page_source_file))% COPY_BUFFER_SIZE] = fgetc(page_source_file);
+	char command_entered = copy_buffer[(ftell(page_source_file))% COPY_BUFFER_SIZE];
+	int command_handler_output = SUCCESS;;
+	// argument_feed = fmemopen (argument_string, strlen (argument_string), "r");
+	switch (command_entered) { // switch command
+		case 'g':
+			command_handler_output = bvr_handle_get(page_source_file, temp_output_file);
+			break;
+		case 's':
+			command_handler_output = bvr_handle_set(page_source_file, temp_output_file);
+			break;
+		case 'i':
+			command_handler_output = bvr_handle_include(page_source_file, temp_output_file);
+			break;
+		case 'm':
+			command_handler_output = bvr_handle_move(page_source_file, temp_output_file);
+			break;
+		case 'b':
+			fprintf(stderr, "bunden %c\n", command_entered);
+			command_handler_output = bvr_handle_info(page_source_file, temp_output_file);
+			break;
+		default:
+			fprintf(stderr, "[tape.c] bvr_command_processor: unknown command %c\n", command_entered);
+			fprintf(temp_output_file, "\nbVerbose unknown command %c\n", command_entered);
+	}
+	if(command_handler_output != SUCCESS) {
+		fprintf(stderr, "[tape.c] bvr_inline_command_processor: command handler for %c returned an error code.\n", command_entered);
+		fprintf(temp_output_file,  "\nbVerbose command handler for %c returned an error code.\n", command_entered);
+		return FAILURE;
+	}
+	return SUCCESS;
+
+}
 int bvr_inline_command_processor(FILE * page_source_file, FILE * output_file, char copy_buffer[]) {
 	FILE * temp_output_file = output_file;
 	int what_to_return = SUCCESS;
-	for(int i = 1; i <= OPENING_COMMAND_TAG_LENGTH; i++) {
-		copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // remove opening command tag characters
-	}
+	// for(int i = 1; i <= OPENING_COMMAND_TAG_LENGTH; i++) {
+	// 	copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file); // remove opening command tag characters
+	// }
 	int command_processor_status = WAITING_FOR_COMMAND;
-	int argument_length = 0;
+	// int argument_length = 0;
 	char command_entered;
 	while(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] != CLOSING_COMMAND_TAG_CHAR_1 ||
 			copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] != CLOSING_COMMAND_TAG_CHAR_2 ||
 			command_processor_status == PROCESSING_COMMAND) {
 		copy_buffer[(ftell(page_source_file))% COPY_BUFFER_SIZE] = fgetc(page_source_file);
-		if(copy_buffer[(ftell(page_source_file)-2)% COPY_BUFFER_SIZE] == LINE_COMMENT_CHAR && command_processor_status == WAITING_FOR_COMMAND) {
+		if(copy_buffer[(ftell(page_source_file))% COPY_BUFFER_SIZE] == LINE_COMMENT_CHAR && command_processor_status == WAITING_FOR_COMMAND) {
 			temp_output_file = fopen(THE_VOID, "w");
 			continue;
 		}
-		if(copy_buffer[(ftell(page_source_file)-2)% COPY_BUFFER_SIZE] == LINE_COMMAND_CHAR && command_processor_status == WAITING_FOR_COMMAND) {
-			command_entered = copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE];
-			command_processor_status = READING_COMMAND;
-			continue;
-		}
-		if(command_processor_status == READING_COMMAND) {
-			if(++argument_length > COPY_BUFFER_SIZE) {
-				fprintf(temp_output_file, "\nbVerbose %d bytes till buffer overflow. Decrease argument length (%d), increase COPY_BUFFER_SIZE (%d) or take cover.\n",
-					COPY_BUFFER_SIZE-argument_length, argument_length, COPY_BUFFER_SIZE);
-				fprintf(stderr, "[tape.c] bvr_inline_command_processor: %d bytes till buffer overflow. Decrease argument length (%d), increase COPY_BUFFER_SIZE (%d) or take cover.\n",
-					COPY_BUFFER_SIZE-argument_length, argument_length, COPY_BUFFER_SIZE);
-				what_to_return = FAILURE;
+		if(copy_buffer[(ftell(page_source_file))% COPY_BUFFER_SIZE] == LINE_COMMAND_CHAR && command_processor_status == WAITING_FOR_COMMAND) {
+			// command_entered = copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE];
+			if(bvr_command_processor(page_source_file, output_file) != SUCCESS) {
+				fprintf(temp_output_file, "\nbVerbose command processor error.\n");
+				fprintf(stderr, "[tape.c] bvr_inline_command_processor: bvr_command_processor returned a non-success status.\n");
 			}
-			if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == CLOSING_COMMAND_TAG_CHAR_1 &&
-					copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == CLOSING_COMMAND_TAG_CHAR_2) { // end of arguments!
-				char argument_string[argument_length+1];
-				for(int i=0; i<argument_length; i++) {
-					argument_string[i] = copy_buffer[0+(ftell(page_source_file)-(argument_length-(1+i)))% COPY_BUFFER_SIZE];
-				}
-				argument_string[argument_length-2] = '\0'; // -2, ker imamo še CLOSING_COMMAND_TAG_CHAR_1 in CLOSING_COMMAND_TAG_CHAR_2
-				int command_handler_output = SUCCESS;
-				FILE * argument_feed;
-				argument_feed = fmemopen (argument_string, strlen (argument_string), "r");
-				switch (command_entered) { // switch command
-					case 'g':
-						command_handler_output = bvr_handle_get(argument_feed, temp_output_file);
-						break;
-					case 's':
-						command_handler_output = bvr_handle_set(argument_feed, temp_output_file);
-						break;
-					case 'i':
-						command_handler_output = bvr_handle_include(argument_feed, temp_output_file);
-						break;
-					case 'm':
-						command_handler_output = bvr_handle_move(argument_feed, temp_output_file);
-						break;
-					case 'b':
-						// fprintf(stderr, "bunden %c\n", command_entered);
-						command_handler_output = bvr_handle_info(argument_feed, temp_output_file);
-						break;
-					default:
-						fprintf(stderr, "[tape.c] bvr_inline_command_processor: unknown command %c\n", command_entered);
-						fprintf(temp_output_file, "\nbVerbose unknown command %c\n", command_entered);
-				}
-				if(command_handler_output != SUCCESS) {
-					fprintf(stderr, "[tape.c] bvr_inline_command_processor: command handler for %c with argument \"%s\" returned an error code.\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
-						argument_string);
-					fprintf(temp_output_file,  "command handler for %c with argument \"%s\" returned an error code.\n", copy_buffer[(ftell(page_source_file)-(1+argument_length))% COPY_BUFFER_SIZE],
-						argument_string);
-					return FAILURE;
-				}
-				return SUCCESS;
-			}
-		}
-		// fputc('a', temp_output_file);
+			copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = '@'; // ker če command handler "poje" @ ne bomo izšli iz while. Nič pa ne
+		}																																// moti ena dodatna @ v bufferju (hello, future self)
+
 		if(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE] == EOF) {
 			fprintf(temp_output_file, "\nbVerbose syntax error: EOF reached before closing command tag --- stopped with this bvr file\n");
 			fprintf(stderr, "[tape.c] bvr_inline_command_processor: syntax error: EOF reached before @> --- stopped with this bvr file\n");
 			return FAILURE;
 		}
 	}
-	copy_buffer[(ftell(page_source_file)% COPY_BUFFER_SIZE)] = fgetc(page_source_file); // remove closing command tag character
+	// copy_buffer[(ftell(page_source_file)% COPY_BUFFER_SIZE)] = fgetc(page_source_file); // remove closing command tag character
 	return what_to_return;
 }
 
