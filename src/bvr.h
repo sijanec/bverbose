@@ -1,5 +1,7 @@
 #pragma once
 #include <strlcpy.c>
+#include <stdlib.h>
+#include <stdio.h>
 #define SUCCESS 0
 #define FAILURE -1
 #define COPY_BUFFER_SIZE 128

@@ -97,6 +97,9 @@ int bvr_handle_include(FILE * input, FILE * output) {
 		if(stream == NULL) {
 			strcat(notgoodatnamingvariables, BVR_COMMAND_FILE_EXT);
 			stream = fopen(notgoodatnamingvariables+1, "r"); // ob1 fuckery
+			if(stream != NULL) {
+				break;
+			}
 		}
 		*singlepath = '\0';
 	}

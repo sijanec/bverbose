@@ -38,7 +38,7 @@ int bundle_js(char* bundle_filename, char* js_source_folder_name, char* file_ext
 					strcat(source_filename, ent->d_name);
 					source_file = fopen(source_filename, "r");
 					// printf("[jsbundle.c] source_filename: %s\n", source_filename);
-					fprintf(bundle_file, "\n// %s\n", source_filename);
+					fprintf(bundle_file, "\n/* %s */\n", source_filename);
 					copy_buffer = fgetc(source_file);
     			while (copy_buffer != EOF) {
         		fputc(copy_buffer, bundle_file);
