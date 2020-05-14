@@ -25,17 +25,20 @@ int bundle_js(char* bundle_filename, char* js_source_folder_name, char* file_ext
 		mkdir_p(bundle_filename);
 	}
 	char copy_buffer;
-	DIR *dir;
-	struct dirent *ent;
+	// DIR *dir;
+	struct dirent **ent;
+	int number_of_files;
   // printf ("[jsbundle.c] bundle_filename: %s\n", bundle_filename);
-	if ((dir = opendir (js_source_folder_name)) != NULL) {
+	number_of_files = scandir(js_source_folder_name, &ent, NULL, alphasort);
+	if (number_of_files > -1) {
 		/* print all the files and directories within directory */
-		while ((ent = readdir (dir)) != NULL) {
-			if(strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
-				char *dot = strrchr(ent->d_name, '.');
+		for (int i = 0; i < number_of_files; i++) {
+			if(strcmp(ent[i]->d_name, ".") != 0 && strcmp(ent[i]->d_name, "..") != 0) {
+				char *dot = strrchr(ent[i]->d_name, '.');
 				if(dot && !strcmp(dot, file_extension)) {
+					fprintf(stderr, "[jsbundle.c] bundling file %s\n", ent[i]->d_name);
 					strcpy(source_filename, js_source_folder_name);
-					strcat(source_filename, ent->d_name);
+					strcat(source_filename, ent[i]->d_name);
 					source_file = fopen(source_filename, "r");
 					// printf("[jsbundle.c] source_filename: %s\n", source_filename);
 					fprintf(bundle_file, "\n/* %s */\n", source_filename);
@@ -48,7 +51,7 @@ int bundle_js(char* bundle_filename, char* js_source_folder_name, char* file_ext
 				}
 			}
 		}
-		closedir (dir);
+		// closedir (dir);
 		fclose(bundle_file);
 	} else {
 		/* could not open directory */
