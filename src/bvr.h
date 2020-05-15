@@ -32,4 +32,8 @@ int bvr_bvrvar_first_time_set = 1;
 #define BVR_INCLUDE_PATH_VAR_NAME "bvr_include_path"
 #define BVR_COMMAND_FILE_EXT ".bvr"
 
+#define BVR_CONTINUE 1328
+#define BVR_KEEPGOING 132
+
 int bvr_compose_stream(FILE *, FILE *);
+int bvr_command_processor(FILE *, FILE *);

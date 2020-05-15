@@ -2,6 +2,22 @@
 #include <bvr.h>
 #include <tape.c>
 #include <bvrvar.c>
+int bvr_commands_check_for_command(char * input_char, char * value, int *i, FILE * input) {
+	if((*input_char) == LINE_COMMAND_CHAR) {
+		FILE * command_return;
+		command_return = fmemopen(value+((*i)++), sizeof(value)-(*i), "w"); // i bajtov smo že napisali.
+		if(bvr_command_processor(input, command_return) != SUCCESS) {
+			fprintf(stderr, "[bvrcommands.c] bvr_commands_check_for_command: command, passed as argument, didn't return success. Going on.\n");
+		}
+		(*i) = (*i)+ftell(command_return);
+		(*input_char) = CLOSING_COMMAND_TAG_CHAR_1; // da zaključimo loop (drugače ostane notri ?)
+		fflush(command_return);
+		fclose(command_return);
+		return BVR_CONTINUE;
+	}
+	return BVR_KEEPGOING;
+}
+
 char bvr_var_skip_separator_chars(FILE * input) {
 	char input_char = fgetc(input);
 	while(input_char == ' ' || input_char == CLOSING_COMMAND_TAG_CHAR_1 || input_char == ',' || input_char == ';' || input_char == EOF ||
@@ -16,6 +32,9 @@ int bvr_handle_get(FILE * input, FILE * output) {
 	int i = 0;
 	while(input_char != ' ' && input_char != CLOSING_COMMAND_TAG_CHAR_1 && input_char != ',' && input_char != ';' && input_char != EOF &&
 			input_char != '\0' && input_char != '\n' && i < BVR_MAX_VARIABLE_SIZE) {
+		if(bvr_commands_check_for_command(&input_char, item, &i, input) == BVR_CONTINUE) {
+			continue;
+		}
 		item[i++] = input_char;
 		input_char = fgetc(input);
 	}
@@ -31,6 +50,9 @@ int bvr_handle_set(FILE * input, FILE * output) {
 	int i = 0;
 	while(input_char != ' ' && input_char != CLOSING_COMMAND_TAG_CHAR_1 && input_char != ',' && input_char != ';' && input_char != EOF &&
 			input_char != '\0' && input_char != '\n' && i < BVR_MAX_VARIABLE_SIZE) {
+		if(bvr_commands_check_for_command(&input_char, item, &i, input) == BVR_CONTINUE) {
+			continue;
+		}
 		item[i++] = input_char;
 		input_char = fgetc(input);
 	}
@@ -39,6 +61,9 @@ int bvr_handle_set(FILE * input, FILE * output) {
 	input_char = bvr_var_skip_separator_chars(input);
 	while(input_char != CLOSING_COMMAND_TAG_CHAR_1 && input_char != ',' && input_char != ';' && input_char != EOF &&
 			input_char != '\0' && input_char != '\n' && i < BVR_MAX_VARIABLE_SIZE) {
+		if(bvr_commands_check_for_command(&input_char, value, &i, input) == BVR_CONTINUE) {
+			continue;
+		}
 		value[i++] = input_char;
 		input_char = fgetc(input);
 	}
@@ -53,6 +78,9 @@ int bvr_handle_include(FILE * input, FILE * output) {
 	int i = 0;
 	while(input_char != ' ' && input_char != CLOSING_COMMAND_TAG_CHAR_1 && input_char != ',' && input_char != ';' && input_char != EOF &&
 			input_char != '\0' && input_char != '\n' && i < BVR_MAX_VARIABLE_SIZE) {
+		if(bvr_commands_check_for_command(&input_char, item, &i, input) == BVR_CONTINUE) {
+			continue;
+		}
 		item[i++] = input_char;
 		input_char = fgetc(input);
 	}
@@ -121,6 +149,9 @@ int bvr_handle_move(FILE * input, FILE * output) {
 	input_char = bvr_var_skip_separator_chars(input);
 	while(input_char != ' ' && input_char != CLOSING_COMMAND_TAG_CHAR_1 && input_char != ',' && input_char != ';' && input_char != EOF &&
 			input_char != '\0' && input_char != '\n' && i < BVR_MAX_VARIABLE_SIZE) {
+		if(bvr_commands_check_for_command(&input_char, value, &i, input) == BVR_CONTINUE) {
+			continue;
+		}
 		value[i++] = input_char;
 		input_char = fgetc(input);
 	}

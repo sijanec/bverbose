@@ -1,34 +1,3 @@
-# <@?s 123 123@>
-# <@?g 123@>
-# <@?b@>
-# test navadne datoteke brez ukazov
 <@?i assets/content/global.bvr @>
-# <@?i krneski @>
-<@?g post_slug @>
-# <@?g bvr_include_path @>
-# <@?i tape-test-to-includes @>
-# <@?g included_variable @> 
-# <@?s abc 1232@>
-# <@?g abc@>
-# <@?m abc bbc@>
-# <@?g abc@>
-# <@?g bbc@>
-# hello?
-# <@?g abc@>
-# <@?s abc 123@>
-# <@?g abc@>
-# <@?g abc@>
-# <@?s ab 12@>
-# <@?g ab@>
-# <@?g ab@>
-# <@?s temp Ime mi je Anton Luka@>
-# <@?g temp@>
-# to je komentar in se ne rendera
-# <@?1 post_author@>
-# <@?2 image_caption This is an example image.@>
-# <@?3 sexample.jpg@>
-# <@#?4 image@>
-# <@?5 image@>
-# <@?6 image@>
-# <@?7 image@>
-# in tako so srečno živeli do konca svojih dni!
+<@?s testing krnkeni@>
+<@?i ?g testing@>
