@@ -7,27 +7,40 @@
 #include <tape.c>
 #include <bvrvar.c>
 #include <inarray.c>
-int bvr_commands_check_for_command(char * input_char, char ** value, int *i, FILE * input) {
+int bvr_commands_check_for_command(char * input_char, char ** value, int *i, FILE * input, int * value_size) {
 	if((*input_char) == LINE_COMMAND_CHAR) {
 		FILE * command_return;
 		size_t buf_size;
-		command_return = open_memstream(&(*value)+((*i)++), &buf_size); // i bajtov smo že napisali.
+		char * command_output;
+		command_return = open_memstream(&command_output, &buf_size);
 		if(bvr_command_processor(input, command_return) != SUCCESS) {
 			fprintf(stderr, "[bvrcommands.c] bvr_commands_check_for_command: command, passed as argument, didn't return success. Going on.\n");
 		}
 		fflush(command_return);
-		(*i) = (*i)+buf_size;
+		while((*value_size) < ((*i)+buf_size)) { // make room in chunks for command_output
+			(*value) = realloc((*value), (*value_size)+BVR_VALUE_CHUNK_SIZE);
+			if((*value) == NULL) {
+				fprintf(stderr, "[bvrcommands.c] bvr_commands_check_for_command: CRITICAL OUT-OF-MEMORY.\n");
+			}
+			(*value_size) = (*value_size)+BVR_VALUE_CHUNK_SIZE;
+		}
+		for(int j = 0; j < buf_size; j++) {
+			/// fprintf(stderr, "debug: \"%c\", %ld\n", command_output[j], buf_size);
+			(*value)[(*i)++] = command_output[j];
+		}
+
 		(*input_char) = CLOSING_COMMAND_TAG_CHAR_1; // da zaključimo loop (drugače ostane notri ?)
 		//\\ zelo slabo. znak, ki ga najde izveden ukaz, se izgubi. rešitev bi bila dobiti zadnji input char, ki triggera break
 		// prejšnjega ukaza, kar pa je nemogoče.
 		fflush(command_return);
 		fclose(command_return);
-		// fprintf(stderr, "debug: \"%s\"\n", (*value));
+		free(command_output);
+		command_output == NULL; // the address/pointer, lost for ever!
 		return BVR_CONTINUE;
 	}
 	return BVR_KEEPGOING;
 }
-char bvr_var_skip_separator_chars(FILE * input) {
+char bvr_commands_skip_separator_chars(FILE * input) {
 	char input_char = fgetc(input);
 	while(input_char == ' ' || input_char == CLOSING_COMMAND_TAG_CHAR_1 || input_char == ',' || input_char == ';' || input_char == EOF ||
 			input_char == '\0'  || input_char == '\n') {
@@ -38,19 +51,22 @@ char bvr_var_skip_separator_chars(FILE * input) {
 char * bvr_commands_get_value(FILE * input, char * yeetus_chars) {
 	int value_size = BVR_VALUE_CHUNK_SIZE;
 	char * value = (char*) malloc(value_size);
-	char input_char = bvr_var_skip_separator_chars(input);
+	char input_char = bvr_commands_skip_separator_chars(input);
 	int i = 0;
 	while(1) {
 		// i == napisali smo že toliko znakov
 		if(i >= value_size) { // <-- todo: uncomment after done debugging
 			value = realloc(value, (value_size) * BVR_VALUE_CHUNK_SIZE);
+			if(value == NULL) {
+				fprintf(stderr, "[bvrcommands.c] bvr_commands_get_value: CRITICAL OUT-OF-MEMORY, FUCK!\n");
+			}
 			value_size = value_size + BVR_VALUE_CHUNK_SIZE;
 		}
 		if(char_in_array(input_char, yeetus_chars)) {
 			value[i++] = '\0';
 			return value; // or yeet!
 		}
-		if(bvr_commands_check_for_command(&(input_char), &(value), &(i), input) == BVR_CONTINUE) {
+		if(bvr_commands_check_for_command(&(input_char), &(value), &(i), input, &(value_size)) == BVR_CONTINUE) {
 			continue;
 		}
 		(value)[(i)++] = input_char;

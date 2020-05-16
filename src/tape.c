@@ -37,7 +37,7 @@ int bvr_command_processor(FILE * page_source_file, FILE * temp_output_file) {
 			command_handler_output = bvr_handle_info(page_source_file, temp_output_file);
 			break;
 		default:
-			fprintf(stderr, "[tape.c] bvr_command_processor: unknown command %c\n", command_entered);
+			fprintf(stderr, "[tape.c] bvr_command_processor: unknown command %c (dec: %d)\n", command_entered, command_entered);
 			fprintf(temp_output_file, "\nbVerbose unknown command %c\n", command_entered);
 	}
 	if(command_handler_output != SUCCESS) {

@@ -1,3 +1,6 @@
 <@?i assets/content/global.bvr @>
 <@?s testing krneki@>
-<@?u -2 -1 ?g testing @>
+# <@?u -2 -1 ?g testing @>
+<@?s branch_name .git/refs/heads/master@>
+<@?s latest_commit ?u 0 -1 ?i ?g branch_name@>
+<@?g latest_commit@>
