@@ -29,8 +29,11 @@ int bvr_command_processor(FILE * page_source_file, FILE * temp_output_file) {
 		case 'm':
 			command_handler_output = bvr_handle_move(page_source_file, temp_output_file);
 			break;
+		case 'u':
+			command_handler_output = bvr_handle_substring(page_source_file, temp_output_file);
+			break;
 		case 'b':
-			fprintf(stderr, "bunden %c\n", command_entered);
+			// fprintf(stderr, "bunden %c\n", command_entered);
 			command_handler_output = bvr_handle_info(page_source_file, temp_output_file);
 			break;
 		default:
@@ -83,9 +86,11 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * output_file, ch
 
 int bvr_compose_stream(FILE * page_source_file, FILE * temp_output_file) {
 	char copy_buffer[COPY_BUFFER_SIZE];
+	int cycles = 0;
 	for(int i = 0; i < sizeof(copy_buffer); i++) { // da garbage vrednosti ne bodo slučajno ukazi!
-		copy_buffer[i] = '\n';
-	}
+		copy_buffer[i] = '\n'; // čeprav OS verjetno nastavi ram na \0\0\0\0\0\0 preden ga da procesu
+	} // ampak kaj pa, ko funkcijo zaženemo drugič, pointer bo kazal na isto mesto! // nočemo \0
+
  	// copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file);
 	// if(copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == EOF) {
 	// 	goto done_reading_write_file;
@@ -116,10 +121,12 @@ int bvr_compose_stream(FILE * page_source_file, FILE * temp_output_file) {
 		// 	continue;
 		// }
 		if(copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == EOF) {
-			fputc('\n', temp_output_file);
+			fputc('\n', temp_output_file); // NO POMEGRANTES! NO! NO! NO! NO POMEGRANTES!
 			break;
 		}
-		fputc(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE], temp_output_file);
+		if (cycles++ != 0) { // da ne napišemo prvega znaka bufferja, preden je sploh kaj v bufferju.
+			fputc(copy_buffer[(ftell(page_source_file)-1)% COPY_BUFFER_SIZE], temp_output_file);
+		}
   }
 	return SUCCESS;
 }

@@ -25,8 +25,8 @@ char bvr_variables[BVR_INITIAL_VARIABLES_COUNT*2][BVR_MAX_VARIABLE_SIZE];
 int bvr_bvrvar_first_time_set = 1;
 
 #define BVR_VER_MAJOR 0
-#define BVR_VER_MINOR 1
-#define BVR_VER_PATCH 1
+#define BVR_VER_MINOR 2
+#define BVR_VER_PATCH 0
 
 #define BVR_PATH_SEPARATOR ' '
 #define BVR_INCLUDE_PATH_VAR_NAME "bvr_include_path"
@@ -34,6 +34,8 @@ int bvr_bvrvar_first_time_set = 1;
 
 #define BVR_CONTINUE 1328
 #define BVR_KEEPGOING 132
+char BVR_CHARS_TO_BREAK_VALUE[3] = {CLOSING_COMMAND_TAG_CHAR_1, EOF, '\0'}; // 0x00 mora biti na koncu (null terminated array)
 
+#define BVR_VALUE_CHUNK_SIZE 256
 int bvr_compose_stream(FILE *, FILE *);
 int bvr_command_processor(FILE *, FILE *);
