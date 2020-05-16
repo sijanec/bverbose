@@ -6,14 +6,17 @@
 #include <string.h>
 #include <limits.h>
 extern int main(int argc, char* argv[]) {
-	if(argc != 3) {
-		printf("usage: %s source-dir/ destination-dir/ (trailing slash mandatory)\n", argv[0]);
+	if(argc != 3 && argc != 4) {
+		printf("usage: %s source-dir/ destination-dir/ [destination .extension=.html]\n", argv[0]);
 		return 1;
+	}
+	char* destination_extension = ".html";
+	if(argc == 4) {
+		destination_extension = argv[3];
 	}
 	char* source_folder_name = argv[1];
 	char* destination_folder_name = argv[2];
 	char* file_extension = ".bvr";
-	char* destination_extension = ".html";
 	char* file_extension2 = ".bverbose"; // unofficial
 	char source_filename[NAME_MAX];
 	char destination_filename[NAME_MAX];
