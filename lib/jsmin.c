@@ -315,7 +315,7 @@ static void jsmin() {
 /* minify_js -- input filename, output filename
 */
 
-int minify_js(const char* source_js_filename, const char* minified_js_filename) {
+int minify_js(char* source_js_filename, char* minified_js_filename) {
 		minified_js_file = fopen_mkdir(minified_js_filename, "w");
 		source_js_file = fopen(source_js_filename, "r");
     jsmin();
