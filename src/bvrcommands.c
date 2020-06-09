@@ -287,7 +287,8 @@ int bvr_handle_equals(FILE * input, FILE * output) {
 int bvr_handle_if(FILE * input, FILE * output) { // ?f 1 <@this is all executed@>
 	// first argument must *POINT* to a string which evaluates to 1, the second argument is the value of the endif string, spaces
 	// are argument delimeters. endif is only used for skipping forward if if should not execute.
-	char * chars_to_break_value = " ";
+
+	char chars_to_break_value[69] = " ";
 	strlcat(chars_to_break_value, BVR_CHARS_TO_BREAK_VALUE, sizeof(chars_to_break_value));
 	char * item = bvr_commands_get_value(input, chars_to_break_value);
 	int return_value = 0;
@@ -304,8 +305,11 @@ int bvr_handle_if(FILE * input, FILE * output) { // ?f 1 <@this is all executed@
 		char previous_char = 'a';
 		int depth = -1; // to increase to 0 after first <@
 		int we_re_in_a_comment = 0;
-		while(input_char != BVR_CLOSING_COMMAND_TAG_CHAR_2 && previous_char != BVR_CLOSING_COMMAND_TAG_CHAR_1 && depth == 0 &&
-					we_re_in_a_comment == 0) {
+		while(1) {
+			if((input_char == BVR_CLOSING_COMMAND_TAG_CHAR_2 && previous_char == BVR_CLOSING_COMMAND_TAG_CHAR_1 && depth == 0 &&
+					we_re_in_a_comment == 0)) {
+				break;
+			}
 			if(previous_char == BVR_OPENING_COMMAND_TAG_CHAR_1 && input_char == BVR_OPENING_COMMAND_TAG_CHAR_2) {
 				depth++;
 			} // this šubidubi doesn't account for <@ and @> in strings.

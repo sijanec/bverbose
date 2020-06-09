@@ -4,3 +4,4 @@
 <@?s branch_name .git/refs/heads/master@>
 <@?s latest_commit ?u 0 -1 ?i ?g branch_name@>
 <@?g latest_commit@>
+<@?f ?"11" <@?g ?"hello!"@>@>
