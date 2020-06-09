@@ -292,7 +292,13 @@ int bvr_handle_if(FILE * input, FILE * output) { // ?f 1 <@this is all executed@
 	char * item = bvr_commands_get_value(input, chars_to_break_value);
 	int return_value = 0;
 	if(strcmp(bvr_var_get(item), "1") == 0) {
-		return_value = bvr_compose_stream(input, output);
+		char chars_to_break_value[3] = {OPENING_COMMAND_TAG_CHAR_2, EOF, '\0'};
+		char * temp = bvr_commands_get_value(input, chars_to_break_value);
+		free(temp);
+		temp = NULL;
+		char copy_buffer[BVR_COPY_BUFFER_SIZE];
+		init_tape_copy_buffer(copy_buffer, COPY_BUFFER_SIZE);
+		return_value = bvr_inline_command_processor(input, output, copy_buffer);
 	} else {
 		char input_char = fgetc(input);
 		char previous_char = 'a';

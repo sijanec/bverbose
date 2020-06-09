@@ -93,13 +93,16 @@ int bvr_inline_command_processor(FILE * page_source_file, FILE * output_file, ch
 	return what_to_return;
 }
 
-int bvr_compose_stream(FILE * page_source_file, FILE * temp_output_file) {
-	char copy_buffer[COPY_BUFFER_SIZE];
-	int cycles = 0;
-	for(int i = 0; i < sizeof(copy_buffer); i++) { // da garbage vrednosti ne bodo slučajno ukazi!
-		copy_buffer[i] = '\n'; // čeprav OS verjetno nastavi ram na \0\0\0\0\0\0 preden ga da procesu
+int init_tape_copy_buffer(char copy_buffer[], int buffer_size) {
+	for(int i = 0; i <buffer_size; i++) { // da garbage vrednosti ne bodo slučajno ukazi!
+		(copy_buffer)[i] = '\n'; // čeprav OS verjetno nastavi ram na \0\0\0\0\0\0 preden ga da procesu
 	} // ampak kaj pa, ko funkcijo zaženemo drugič, pointer bo kazal na isto mesto! // nočemo \0
+}
 
+int bvr_compose_stream(FILE * page_source_file, FILE * temp_output_file) {
+	int cycles = 0;
+	char copy_buffer[COPY_BUFFER_SIZE];
+	init_tape_copy_buffer(copy_buffer, COPY_BUFFER_SIZE);
  	// copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] = fgetc(page_source_file);
 	// if(copy_buffer[ftell(page_source_file)% COPY_BUFFER_SIZE] == EOF) {
 	// 	goto done_reading_write_file;

@@ -5,6 +5,7 @@
 #define SUCCESS 0
 #define FAILURE -1
 #define COPY_BUFFER_SIZE 128
+#define BVR_COPY_BUFFER_SIZE COPY_BUFFER_SIZE
 #define OPENING_COMMAND_TAG_LENGTH 2
 #define OPENING_COMMAND_TAG_CHAR_1 '<'
 #define OPENING_COMMAND_TAG_CHAR_2 '@'
@@ -49,3 +50,6 @@ int bvr_command_processor(FILE *, FILE *);
 #define BVR_ESCAPE_CHAR '\\'
 
 #define BVR_NEWLINE_CHAR '\n'
+
+int init_tape_copy_buffer(char [], int);
+int bvr_inline_command_processor(FILE *, FILE *, char []);
