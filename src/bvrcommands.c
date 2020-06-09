@@ -7,6 +7,8 @@
 #include <tape.c>
 #include <bvrvar.c>
 #include <inarray.c>
+#include <uuid/uuid.h>
+
 int bvr_commands_check_for_command(char * input_char, char ** value, int *i, FILE * input, int * value_size) {
 	if((*input_char) == LINE_COMMAND_CHAR) {
 		FILE * command_return;
@@ -255,12 +257,76 @@ int bvr_handle_string(FILE * input, FILE * output) {
 	uuid_generate_random(binuuid);
 	char uuid[37];
 	uuid_unparse(binuuid, uuid);
-	int return_value = bvr_var_set(uuid, value);
+	int return_value = bvr_var_set(uuid, item);
 	free(item);
 	item = NULL;
+	fprintf(output, "%s", uuid);
 	fflush(output);
 	return return_value;
-
+}
+int bvr_handle_equals(FILE * input, FILE * output) {
+	char chars_to_break_value[69] = " ";
+	strlcat(chars_to_break_value, BVR_CHARS_TO_BREAK_VALUE, sizeof(chars_to_break_value));
+	char * item = bvr_commands_get_value(input, chars_to_break_value);
+	char * value = bvr_commands_get_value(input, chars_to_break_value);
+	int return_value = 0;
+	char * string1 = bvr_var_get(item);
+	char * string2 = bvr_var_get(value);
+	if(strcmp(string1, string2) == 0) {
+		fprintf(output, "1");
+	} else {
+		fprintf(output, "0");
+	}
+	free(item);
+	free(value);
+	item = NULL;
+	value = NULL;
+	fflush(output);
+	return return_value;
+}
+int bvr_handle_if(FILE * input, FILE * output) { // ?f 1 <@this is all executed@>
+	// first argument must *POINT* to a string which evaluates to 1, the second argument is the value of the endif string, spaces
+	// are argument delimeters. endif is only used for skipping forward if if should not execute.
+	char * chars_to_break_value = " ";
+	strlcat(chars_to_break_value, BVR_CHARS_TO_BREAK_VALUE, sizeof(chars_to_break_value));
+	char * item = bvr_commands_get_value(input, chars_to_break_value);
+	int return_value = 0;
+	if(strcmp(bvr_var_get(item), "1") == 0) {
+		return_value = bvr_compose_stream(input, output);
+	} else {
+		char input_char = fgetc(input);
+		char previous_char = 'a';
+		int depth = -1; // to increase to 0 after first <@
+		int we_re_in_a_comment = 0;
+		while(input_char != BVR_CLOSING_COMMAND_TAG_CHAR_2 && previous_char != BVR_CLOSING_COMMAND_TAG_CHAR_1 && depth == 0 &&
+					we_re_in_a_comment == 0) {
+			if(previous_char == BVR_OPENING_COMMAND_TAG_CHAR_1 && input_char == BVR_OPENING_COMMAND_TAG_CHAR_2) {
+				depth++;
+			} // this šubidubi doesn't account for <@ and @> in strings.
+			if(previous_char == BVR_CLOSING_COMMAND_TAG_CHAR_1 && input_char== BVR_CLOSING_COMMAND_TAG_CHAR_2) {
+				depth--;
+			}
+			if(previous_char == LINE_COMMAND_CHAR && input_char == BVR_BREAK_STRING_CHAR) {
+				char * temp = bvr_commands_get_string(input);
+				free(temp);
+				temp = NULL;
+			}
+			if(previous_char == BVR_NEWLINE_CHAR && input_char == LINE_COMMENT_CHAR) {
+				we_re_in_a_comment = 1;
+			}
+			if(we_re_in_a_comment && input_char == BVR_NEWLINE_CHAR) {
+				we_re_in_a_comment = 0;
+			}
+			previous_char = input_char;
+			input_char = fgetc(input);
+		}
+	}
+	free(item);
+	item = NULL;
+	if(return_value != 0) {
+		fprintf(stderr, "bvrcommands.c: bvr_handle_if: bvr_compose_stream returned an error status!\n");
+	}
+	return return_value;
 }
 int bvr_handle_info(FILE * input, FILE * output) {
 	// fprintf(stderr, "[bvrcommands.c] bvr_handle_info: bvr bVerbose HTPCMS %d.%d.%d\n", BVR_VER_MAJOR, BVR_VER_MINOR, BVR_VER_PATCH);
