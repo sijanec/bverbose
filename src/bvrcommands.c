@@ -74,6 +74,37 @@ char * bvr_commands_get_value(FILE * input, char * yeetus_chars) {
 	}
 	// we should not get here!
 }
+char * bvr_commands_get_string(FILE * input) {
+	int value_size = BVR_VALUE_CHUNK_SIZE;
+	char * value = (char*) malloc(value_size);
+	char input_char = fgetc(input);
+	char previous_char = 'a'; // please don't make a an escape char
+	int i = 0;
+	while(1) {
+		// i == napisali smo že toliko znakov
+		if(i >= value_size) { // <-- todo: uncomment after done debugging
+			value = realloc(value, (value_size) * BVR_VALUE_CHUNK_SIZE);
+			if(value == NULL) {
+				fprintf(stderr, "[bvrcommands.c] bvr_commands_get_value: CRITICAL OUT-OF-MEMORY, FUCK!\n");
+			}
+			value_size = value_size + BVR_VALUE_CHUNK_SIZE;
+		}
+		if(input_char == BVR_BREAK_STRING_CHAR) {
+			if(previous_char != BVR_ESCAPE_CHAR) {
+				value[i++] = '\0';
+				return value;
+			} else {
+				i--; // da zamenjamo prejšnji ESCAPE_CHAR z BREAK_STRING charom
+				(value)[(i)++] = BVR_BREAK_STRING_CHAR;
+			}
+		} else {
+			(value)[(i)++] = input_char;
+		}
+		previous_char = input_char;
+		input_char = fgetc(input);
+	}
+	// we should not get here!
+}
 int bvr_handle_substring(FILE * input, FILE * output) { // acts like https://www.php.net/manual/en/function.substr.php
 	char chars_to_break_value[69] = ",; ";
 	strlcat(chars_to_break_value, BVR_CHARS_TO_BREAK_VALUE, sizeof(chars_to_break_value));
@@ -213,6 +244,19 @@ int bvr_handle_move(FILE * input, FILE * output) {
 	free(item);
 	free(value);
 	value = NULL;
+	item = NULL;
+	fflush(output);
+	return return_value;
+
+}
+int bvr_handle_string(FILE * input, FILE * output) {
+	char * item = bvr_commands_get_string(input);
+	uuid_t binuuid;
+	uuid_generate_random(binuuid);
+	char uuid[37];
+	uuid_unparse(binuuid, uuid);
+	int return_value = bvr_var_set(uuid, value);
+	free(item);
 	item = NULL;
 	fflush(output);
 	return return_value;

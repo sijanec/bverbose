@@ -29,6 +29,15 @@ int bvr_command_processor(FILE * page_source_file, FILE * temp_output_file) {
 		case 'm':
 			command_handler_output = bvr_handle_move(page_source_file, temp_output_file);
 			break;
+		case 'f':
+			command_handler_output = bvr_handle_if(page_source_file, temp_output_file);
+			break;
+		case '=':
+			command_handler_output = bvr_handle_equals(page_source_file, temp_output_file);
+			break;
+		case '"':
+			command_handler_output = bvr_handle_string(page_source_file, temp_output_file);
+			break;
 		case 'u':
 			command_handler_output = bvr_handle_substring(page_source_file, temp_output_file);
 			break;

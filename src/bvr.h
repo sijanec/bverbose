@@ -39,3 +39,6 @@ char BVR_CHARS_TO_BREAK_VALUE[3] = {CLOSING_COMMAND_TAG_CHAR_1, EOF, '\0'}; // 0
 #define BVR_VALUE_CHUNK_SIZE 256
 int bvr_compose_stream(FILE *, FILE *);
 int bvr_command_processor(FILE *, FILE *);
+
+#define BVR_BREAK_STRING_CHAR '"'
+#define BVR_ESCAPE_CHAR '\\'
