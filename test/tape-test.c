@@ -10,6 +10,5 @@ extern int main(int argc, char* argv[]) {
 	// bvr_var_set("ab", "123");
 	// printf("%s\n", bvr_var_get("abc"));
 	// printf("%s\n", bvr_var_get("ab"));
-	bvr_compose_page(argv[1], 0, argv[2]);
-	return 1;
+	return bvr_compose_page(argv[1], 0, argv[2]);
 }
