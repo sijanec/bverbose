@@ -8,7 +8,7 @@ default:
 	@echo "no target specified, exiting."
 
 prepare:
-	apt install libuuid1 uuid-dev -y
+	sudo apt install libuuid1 uuid-dev -y
 
 install:
 	mkdir -p bin
