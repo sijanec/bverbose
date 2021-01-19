@@ -1,3 +1,7 @@
+# this repository has been forked over to git.šijanec.eu. please adjust your remotes and pull from https://git.šijanec.eu/sijanec/bverbose. no further commits will be done here. LP
+
+---
+
 # bVerbose
 Simple software for compiling posts and pages into a fully featured blog or news site.
 
